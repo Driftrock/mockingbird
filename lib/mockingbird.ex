@@ -16,7 +16,7 @@ defmodule Mockingbird do
     env = Keyword.get(opts, :env) || Mix.env
 
     case env do
-      :test -> Keyword.get(opts, :test_client)
+      :test -> Keyword.fetch!(opts, :test_client)
       _ -> live_client(opts)
     end
   end

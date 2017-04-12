@@ -19,12 +19,8 @@ end
 defmodule MyApp.Git do
   use Mockingbird, mock_client: MyApp.GitMockHttpClient
 
-  def get_account_info do
-    @api_client.call(:get, "https://api.github.com/users/amencarini")
-  end
-
-  def update_company(new_company) do
-    @api_client.call(:patch, "https://api.github.com/user", company: new_company, %{"Authorization" => "token 321"})
+  def get_account_info(username) do
+    @http_client.call(:get, "https://api.github.com/users/" <> username)
   end
 end
 
@@ -32,6 +28,8 @@ end
 defmodule MyApp.GitMockHttpClient do
   use Mockingbird.FakeClient
 
+  # All the `call` methods you plan to use in tests will need a function head
+  # that will match test usage
   def call(:get, "https://api.github.com/users/amencarini") do
     respond :ok, 200, """
     {
@@ -40,24 +38,17 @@ defmodule MyApp.GitMockHttpClient do
     }
     """
   end
+end
 
-  def call(:get, %URI{path: ("/user")}, %{"Authorization" => "token GoodToken"}) do
-    respond :ok, 200, """
-    {
-      "currency": "GBP",
-      "name": "Driftrock",
-      "timezone_name": "Europe/London"
-    }
-    """
-  end
+# test/my_app/git_test.exs
+defmodule MyApp.GitTest do
+  use ExUnit.Case
 
-  def call(:get, %URI{path: ("/user")}, %{"Authorization" => "token BadToken"}) do
-    respond :ok, 401, """
-    {
-      "message": "Requires authentication",
-      "documentation_url": "https://developer.github.com/v3"
-    }
-    """
+  describe "MyApp.Git.get_account_info/1" do
+    test "it returns data for the selected user" do
+      {:ok, res} = MyApp.Git.get_account_info("amencarini")
+      assert Poison.decode(res.body) == %{"login" => "amencarini", "id" => 1100003}
+    end
   end
 end
 ```

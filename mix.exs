@@ -30,7 +30,9 @@ defmodule Mockingbird.Mixfile do
   defp deps do
     [
       {:httpoison, "~> 0.10.0"},
-      {:mock, "~> 0.2.0", only: :test}
+      {:mock, "~> 0.2.0", only: :test},
+      {:credo, "~> 0.7", only: [:dev, :test]},
+      {:dialyxir, "~> 0.5", only: [:dev], runtime: false}
     ]
   end
 end
