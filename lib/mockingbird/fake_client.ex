@@ -1,20 +1,30 @@
 defmodule Mockingbird.FakeClient do
   defmodule Response do
+    @moduledoc """
+    A struct that holds the mocked response.
+    """
+
     defstruct status_code: nil, body: nil, headers: []
     @type t :: %__MODULE__{status_code: integer, body: binary, headers: list}
   end
 
   defmodule Error do
+    @moduledoc """
+    The exception that will be passed when the mocked response is requested with
+    `:error` as a parameter
+    """
+
     defexception [:message]
      @type t :: %__MODULE__{message: binary}
   end
 
   @moduledoc ~S"""
-  Set of helpers to be used in the module that contains the canned respnoses.
+  Set of helpers to be used in the module that contains the mocked respnoses.
   """
 
   @doc """
-  Returns a tuple the way HTTPoison does after a request. e.g.:
+  Returns `{:ok, response}` if an `:ok` is passed as a first parameter, or
+  `{:error, exception}` if `:error` is passed.
 
       # test/support/git_mock_http_client.ex
       defmodule MyApp.GitMockHttpClient do

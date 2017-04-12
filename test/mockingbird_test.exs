@@ -1,6 +1,5 @@
 defmodule MockingbirdTest do
   use ExUnit.Case
-  # doctest Mockingbird
 
   import Mock
 

@@ -1,6 +1,6 @@
 # Mockingbird
 
-The easiest way to test external API calls in your elixir application.
+Mockingbird helps you create API consumers that are easy to test.
 
 ## Installation
 

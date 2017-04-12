@@ -7,8 +7,15 @@ defmodule Mockingbird.HTTPoisonHttpClient do
   @doc """
   This will instruct HTTPoison to perform the request.
 
-  Return HTTPoison normal values (an `{:ok, response}` tuple` if the request
-  is fulfilled, an `{:error, error}` tuple if the request cannot be performed)
+  Return HTTPoison normal values (an `{:ok, response}` tuple if the request is
+  fulfilled, an `{:error, error}` tuple if the request cannot be performed)
+
+  The first parameter must be one of the following atoms: `:delete`, `:get`,
+  `:head`, `:options`, `:patch`, `:post`.
+
+  The query string for a get call can be either incorporated in the url or
+  passed as a map. The body for all other methods need to be a binary (e.g.: a
+  string with a JSON-encoded structure).
   """
   @spec call(atom, binary, map | binary, map) :: {:ok, HTTPoison.Response.t} | {:error, HTTPoison.Error.t}
   def call(verb, url, body \\ %{}, headers \\ %{})
@@ -38,7 +45,7 @@ defmodule Mockingbird.HTTPoisonHttpClient do
     HTTPoison.post(url, body, headers)
   end
 
-  defp url_with_params(url, %{}), do: url
+  defp url_with_params(url, params) when params == %{}, do: url
   defp url_with_params(url, params), do: url |> add_query_to_url(params)
 
   defp add_query_to_url(url, params) do
