@@ -81,7 +81,7 @@ defmodule Mockingbird do
   end
 
   defp clients(opts) do
-    Keyword.has_key?(opts, :client) do
+    if Keyword.has_key?(opts, :client) do
       []
       |> Keyword.put(:default_client,  Keyword.get(opts, :client))
     else
