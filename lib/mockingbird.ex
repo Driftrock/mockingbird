@@ -59,7 +59,7 @@ defmodule Mockingbird do
 
     quote do
       @clients unquote(clients |> Macro.escape)
-      @deafult_fallback_client Mockingbird.HTTPoisonHttpClient
+      @default_fallback_client Mockingbird.HTTPoisonHttpClient
 
       defp http_client do
         receive do

@@ -59,7 +59,7 @@ defmodule MockingbirdTest do
 
     test "it goes through the live client in a `with_live_client` block" do
       with_mock HTTPoison, [get: fn("http://example.com", %{}) -> "<html></html>" end] do
-        TestConsumer.with_live_client do: fn ->
+        TestConsumer.with_client :prod, do: fn ->
           TestConsumer.test
         end
         assert called HTTPoison.get("http://example.com", %{})
