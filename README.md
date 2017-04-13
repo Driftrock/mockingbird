@@ -78,17 +78,16 @@ end
 
 ## Configuration
 
-Mockingbird uses HTTPoison as default for HTTP calls in `:prod` environment,
-but you can create or customise your live client. You can either specify this
-globally at config level:
+Mockingbird uses HTTPoison as default for HTTP calls when key for current
+environment is not set in `use`. You can create or customise your default client. You can either specify this globally at config level:
 
 ```elixir
 # config/config.exs
 config :mockingbird,
-  prod: MyApp.CustomHttpClient
+  default_client: MyApp.CustomHttpClient
 ```
 
-Or on a consumer basis:
+Or on a consumer basis for specific environments:
 
 ```elixir
 # lib/my_app/git.ex

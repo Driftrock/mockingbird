@@ -52,6 +52,8 @@ defmodule Mockingbird do
     with a client that performs calls through HTTPoison.
   """
 
+  @deafult_fallback_client Mockingbird.HTTPoisonHttpClient
+
   @doc false
   defmacro __using__(opts) do
     clients = clients(opts) |> Enum.into(%{}, fn({k, v}) -> {k, Macro.expand(v, __CALLER__)} end)
@@ -61,9 +63,9 @@ defmodule Mockingbird do
 
       defp http_client do
         receive do
-          {:force_client_env, env} -> Map.get(@clients, env)
+          {:force_client_env, env} -> Map.get(@clients, env) || default_client(opts)
         after
-          0 -> Map.get(@clients, Mix.env) || Map.get(@clients, :prod)
+          0 -> Map.get(@clients, Mix.env) || default_client(opts)
         end
       end
 
@@ -77,16 +79,13 @@ defmodule Mockingbird do
   defp clients(opts) do
     Keyword.has_key?(opts, :client) do
       []
-      |> Keyword.put(:prod,  Keyword.get(opts, :client))
+      |> Keyword.put(:default_client,  Keyword.get(opts, :client))
     else
-      # ensure we have :prod by default
-      []
-      |> Keyword.put(:prod, live_client(opts))
-      |> Keyword.merge(opts)
+      opts
     end
   end
 
-  defp live_client(opts) do
-    Application.get_env(:mockingbird, :prod, Mockingbird.HTTPoisonHttpClient)
+  defp default_client(opts) do
+    Map.get(@clients, :default_client) || Application.get_env(:mockingbird, :default_client, @default_fallback_client)
   end
 end
