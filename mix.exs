@@ -1,10 +1,11 @@
 defmodule Mockingbird.Mixfile do
   use Mix.Project
 
-  @version "0.0.2"
+  @version "0.0.3"
   @url "https://github.com/Driftrock/mockingbird"
   @maintainers [
-    "Alessandro Mencarini"
+    "Alessandro Mencarini",
+    "Lukáš Doležal"
   ]
 
   def project do
@@ -34,7 +35,8 @@ defmodule Mockingbird.Mixfile do
       {:mock, "~> 0.2.0", only: :test},
       {:credo, "~> 0.7", only: [:dev, :test]},
       {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
-      {:ex_doc, "~> 0.14", only: :dev, runtime: false}
+      {:ex_doc, "~> 0.14", only: :dev, runtime: false},
+      {:inch_ex, only: :docs}
     ]
   end
 

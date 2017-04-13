@@ -63,19 +63,29 @@ defmodule Mockingbird do
 
       defp http_client do
         receive do
-          {:force_client_env, env} -> Map.get(@clients, env) || default_client()
+          {:force_client_env, env} ->
+            send self(), {:force_client_env, env}
+            Map.get(@clients, env) || default_client()
         after
-          0 -> Map.get(@clients, Mix.env) || default_client()
+          # If the mailbox does not have a message matching as above, the
+          # following gets executed immediately.
+          0 ->
+            Map.get(@clients, Mix.env) || default_client()
+        end
+      end
+
+      defmacro with_client(env, do: block) do
+        quote do
+          send self(), {:force_client_env, unquote(env)}
+          unquote(block)
+          receive do
+            {:force_client_env, env} -> :ok
+          end
         end
       end
 
       defp default_client() do
         Map.get(@clients, :default_client) || Application.get_env(:mockingbird, :default_client, @default_fallback_client)
-      end
-
-      def with_client(env, do: block) do
-        send self(), {:force_client_env, env}
-        block.()
       end
     end
   end
