@@ -10,7 +10,7 @@ Add `mockingbird` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
-  [{:mockingbird, "~> 0.0.2"}]
+  [{:mockingbird, "~> 0.0.3"}]
 end
 ```
 
@@ -69,10 +69,12 @@ defmodule MyApp.GitTest do
 
   describe "MyApp.Git.get_account_info/1" do
     test "checks the real API hasn't changed" do
-      MyApp.Git.with_client :prod, do: fn ->
+      require  MyApp.Git # Needed to get the `with_client` macro available
+
+      MyApp.Git.with_client(:prod) do
         {:ok, res} = MyApp.Git.get_account_info("amencarini")
+        assert Poison.decode(res.body) == %{"login" => "amencarini", "id" => 1100003}
       end
-      assert Poison.decode(res.body) == %{"login" => "amencarini", "id" => 1100003}
     end
   end
 end

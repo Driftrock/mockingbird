@@ -22,8 +22,9 @@ defmodule MockingbirdTest do
   defmodule TestConsumer do
     use Mockingbird, test: MockHttpClient
 
-    def test do
-      http_client().call(:get, "http://example.com")
+    def test(url \\ "http://example.com")
+    def test(url) do
+      http_client().call(:get, url)
     end
   end
 
@@ -57,12 +58,27 @@ defmodule MockingbirdTest do
       assert %{body: "ok", status_code: 200} = result
     end
 
-    test "it goes through the live client in a `with_live_client` block" do
+    test "it goes through the live client in a `with_client` block" do
       with_mock HTTPoison, [get: fn("http://example.com", %{}) -> "<html></html>" end] do
-        TestConsumer.with_client :prod, do: fn ->
+        require TestConsumer # Needed to get the `with_client` macro available
+        TestConsumer.with_client :prod, do: TestConsumer.test
+        assert called HTTPoison.get("http://example.com", %{})
+      end
+    end
+
+    test "it supports multiple calls in a `with_client` block" do
+      with_mock HTTPoison, [get: fn(_url, %{}) -> "<html></html>" end] do
+        require TestConsumer # Needed to get the `with_client` macro available
+        TestConsumer.with_client(:prod) do
           TestConsumer.test
+          TestConsumer.test("http://anotherexample.com")
         end
         assert called HTTPoison.get("http://example.com", %{})
+        assert called HTTPoison.get("http://anotherexample.com", %{})
+
+        # back to using `MockHttpClient`
+        {:ok, result} = TestConsumer.test
+        assert %{body: "ok", status_code: 200} = result
       end
     end
 
