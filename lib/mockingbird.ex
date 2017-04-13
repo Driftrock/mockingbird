@@ -63,9 +63,9 @@ defmodule Mockingbird do
 
       defp http_client do
         receive do
-          {:force_client_env, env} -> Map.get(@clients, env) || default_client(opts)
+          {:force_client_env, env} -> Map.get(@clients, env) || default_client()
         after
-          0 -> Map.get(@clients, Mix.env) || default_client(opts)
+          0 -> Map.get(@clients, Mix.env) || default_client()
         end
       end
 
@@ -85,7 +85,7 @@ defmodule Mockingbird do
     end
   end
 
-  defp default_client(opts) do
+  defp default_client() do
     Map.get(@clients, :default_client) || Application.get_env(:mockingbird, :default_client, @default_fallback_client)
   end
 end
