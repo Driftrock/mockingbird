@@ -156,6 +156,3 @@ defmodule MyApp.Git do
   end
 end
 ```
-
-
-## Interface
