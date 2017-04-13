@@ -28,8 +28,9 @@ end
 defmodule MyApp.GitMockHttpClient do
   use Mockingbird.Client
 
-  # All the `call` methods you plan to use in tests will need a function head
-  # that will match test usage
+  # Define `call` methods for each `call` head (ie. verb, url, params) you
+  # want to mock for tests
+  # `respond` helper method returns struct mimicking HTTPoison.Response
   def call(:get, "https://api.github.com/users/amencarini") do
     respond :ok, 200, """
     {
@@ -55,9 +56,9 @@ end
 
 ### Fallback on live client
 
-Sometimes you might want to fallback on the live client (e.g.: you have some
+Sometimes you might want to fallback on the live client inside tests (e.g.: you have some
 tests running against the live API you're consuming.) To do so, wrap your test
-in a `with_live_client` call:
+in a `with_client(environment)` call:
 
 ```elixir
 # test/my_app/git_test.exs
@@ -66,7 +67,7 @@ defmodule MyApp.GitTest do
 
   describe "MyApp.Git.get_account_info/1" do
     test "checks the real API hasn't changed" do
-      MyApp.Git.with_live_client do: fn ->
+      MyApp.Git.with_client :prod, do: fn ->
         {:ok, res} = MyApp.Git.get_account_info("amencarini")
       end
       assert Poison.decode(res.body) == %{"login" => "amencarini", "id" => 1100003}
@@ -77,23 +78,24 @@ end
 
 ## Configuration
 
-Mockingbird uses HTTPoison as default for live HTTP calls, but you can create or
-customise your live client. You can either specify this at config level:
+Mockingbird uses HTTPoison as default for HTTP calls in `:prod` environment,
+but you can create or customise your live client. You can either specify this
+globally at config level:
 
 ```elixir
 # config/config.exs
 config :mockingbird,
-  live_client: MyApp.CustomHttpClient
+  prod: MyApp.CustomHttpClient
 ```
 
-Or on a consumer basis.
+Or on a consumer basis:
 
 ```elixir
 # lib/my_app/git.ex
 defmodule MyApp.Git do
   use Mockingbird,
     test: MyApp.GitMockHttpClient
-    live_client: MyApp.CustomHttpClient
+    prod: MyApp.CustomHttpClient
 
   def get_account_info(username) do
     http_client().call(:get, "https://api.github.com/users/" <> username)
@@ -113,10 +115,15 @@ defmodule MyApp.CustomHttpClient do
 end
 ```
 
+In fact client interface is the same for live and test clients. It is only
+convenient to have default client for live and on the other hand have few helpers
+in test clients.
+
 ### Clients per environment
 
 You might want to set different clients per different environments. To do so you
-can setup your consumer with a list of clients to use.
+can setup your consumer with a list of clients to use. Keys matches with current
+`Mix.env`.
 
 ```elixir
 # lib/my_app/git.ex
@@ -150,3 +157,6 @@ defmodule MyApp.Git do
   end
 end
 ```
+
+
+## Interface

@@ -61,30 +61,32 @@ defmodule Mockingbird do
 
       defp http_client do
         receive do
-          :use_live_client -> Map.get(@clients, :live_client)
+          {:force_client_env, env} -> Map.get(@clients, env)
         after
-          0 -> Map.get(@clients, Mix.env) || Map.get(@clients, :live_client)
+          0 -> Map.get(@clients, Mix.env) || Map.get(@clients, :prod)
         end
       end
 
-      def with_live_client(do: block) do
-        send self(), :use_live_client
+      def with_client(env, do: block) do
+        send self(), {:force_client_env, env}
         block.()
       end
     end
   end
 
   defp clients(opts) do
-    if Keyword.has_key?(opts, :client) do
+    Keyword.has_key?(opts, :client) do
       []
-      |> Keyword.put(Mix.env,  Keyword.get(opts, :client))
-      |> Keyword.put(:live_client, live_client(opts))
+      |> Keyword.put(:prod,  Keyword.get(opts, :client))
     else
-      Keyword.put(opts, :live_client, live_client(opts))
+      # ensure we have :prod by default
+      []
+      |> Keyword.put(:prod, live_client(opts))
+      |> Keyword.merge(opts)
     end
   end
 
   defp live_client(opts) do
-    Keyword.get(opts, :live_client) || Application.get_env(:mockingbird, :live_client, Mockingbird.HTTPoisonHttpClient)
+    Application.get_env(:mockingbird, :prod, Mockingbird.HTTPoisonHttpClient)
   end
 end
