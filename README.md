@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/Driftrock/mockingbird.svg?branch=master)](https://travis-ci.org/Driftrock/mockingbird)
 
+[![Inline docs](http://inch-ci.org/github/Driftrock/mockingbird.svg)](http://inch-ci.org/github/Driftrock/mockingbird)
+
 Mockingbird helps you create API consumers that are easy to test.
 
 ## Installation
