@@ -6,16 +6,16 @@ defmodule Mockingbird do
 
       # lib/my_app/git.ex
       defmodule MyApp.Git do
-        use Mockingbird, mock_client: MyApp.GitMockHttpClient
+        use Mockingbird, test: MyApp.GitMockHttpClient
 
         def get_account_info(username) do
-          @http_client.call(:get, "https://api.github.com/users/" <> username)
+          http_client().call(:get, "https://api.github.com/users/" <> username)
         end
       end
 
       # test/support/git_mock_http_client.ex
       defmodule MyApp.GitMockHttpClient do
-        use Mockingbird.FakeClient
+        use Mockingbird.Client
 
         # All the `call` methods you plan to use in tests will need a function head
         # that will match test usage
@@ -41,30 +41,46 @@ defmodule Mockingbird do
         end
       end
 
+
   ## Options
 
-      use Mockingbird, mock_client: MyApp.GitMockHttpClient, live_client: MyApp.CustomHttpClient
+      use Mockingbird, test: MyApp.GitMockHttpClient, live_client: MyApp.CustomHttpClient
 
-  - `mock_client`: specify what module will contain the mocked responses
+  - `test`: specify what module will contain the mocked responses when used in
+    the test environment.
   - `live_client`: use a custom http client for live calls. Mockingbirg comes
     with a client that performs calls through HTTPoison.
   """
 
   @doc false
   defmacro __using__(opts) do
-    client = client_by_env(opts)
+    clients = clients(opts) |> Enum.into(%{}, fn({k, v}) -> {k, Macro.expand(v, __CALLER__)} end)
 
     quote do
-      @http_client unquote(client)
+      @clients unquote(clients |> Macro.escape)
+
+      defp http_client do
+        receive do
+          :use_live_client -> Map.get(@clients, :live_client)
+        after
+          0 -> Map.get(@clients, Mix.env) || Map.get(@clients, :live_client)
+        end
+      end
+
+      def with_live_client(do: block) do
+        send self(), :use_live_client
+        block.()
+      end
     end
   end
 
-  defp client_by_env(opts) do
-    env = Keyword.get(opts, :env) || Mix.env
-
-    case env do
-      :test -> Keyword.fetch!(opts, :test_client)
-      _ -> live_client(opts)
+  defp clients(opts) do
+    if Keyword.has_key?(opts, :client) do
+      []
+      |> Keyword.put(Mix.env,  Keyword.get(opts, :client))
+      |> Keyword.put(:live_client, live_client(opts))
+    else
+      Keyword.put(opts, :live_client, live_client(opts))
     end
   end
 

@@ -1,4 +1,4 @@
-defmodule Mockingbird.FakeClient do
+defmodule Mockingbird.Client do
   defmodule Response do
     @moduledoc """
     A struct that holds the mocked response.
