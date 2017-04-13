@@ -52,7 +52,6 @@ defmodule Mockingbird do
     with a client that performs calls through HTTPoison.
   """
 
-  @deafult_fallback_client Mockingbird.HTTPoisonHttpClient
 
   @doc false
   defmacro __using__(opts) do
@@ -60,6 +59,7 @@ defmodule Mockingbird do
 
     quote do
       @clients unquote(clients |> Macro.escape)
+      @deafult_fallback_client Mockingbird.HTTPoisonHttpClient
 
       defp http_client do
         receive do
@@ -67,6 +67,10 @@ defmodule Mockingbird do
         after
           0 -> Map.get(@clients, Mix.env) || default_client()
         end
+      end
+
+      defp default_client() do
+        Map.get(@clients, :default_client) || Application.get_env(:mockingbird, :default_client, @default_fallback_client)
       end
 
       def with_client(env, do: block) do
@@ -83,9 +87,5 @@ defmodule Mockingbird do
     else
       opts
     end
-  end
-
-  defp default_client() do
-    Map.get(@clients, :default_client) || Application.get_env(:mockingbird, :default_client, @default_fallback_client)
   end
 end
