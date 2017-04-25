@@ -1,7 +1,7 @@
 defmodule Mockingbird.Mixfile do
   use Mix.Project
 
-  @version "0.0.3"
+  @version "0.0.4"
   @url "https://github.com/Driftrock/mockingbird"
   @maintainers [
     "Alessandro Mencarini",
@@ -29,7 +29,7 @@ defmodule Mockingbird.Mixfile do
 
   defp deps do
     [
-      {:httpoison, "~> 0.10.0"},
+      {:httpoison, "~> 0.10"},
 
       # Dev and test deps
       {:mock, "~> 0.2.0", only: :test},
