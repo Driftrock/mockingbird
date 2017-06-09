@@ -12,7 +12,11 @@ Add `mockingbird` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
-  [{:mockingbird, "~> 0.0.3"}]
+  [
+    ...
+    {:mockingbird, "~> 0.0.3"},
+    ...
+  ]
 end
 ```
 
