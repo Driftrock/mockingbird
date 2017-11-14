@@ -1,11 +1,12 @@
 defmodule Mockingbird.Mixfile do
   use Mix.Project
 
-  @version "0.0.4"
+  @version "0.1.0"
   @url "https://github.com/Driftrock/mockingbird"
   @maintainers [
     "Alessandro Mencarini",
-    "Lukáš Doležal"
+    "Lukáš Doležal",
+    "Dan Watts"
   ]
 
   def project do
@@ -14,8 +15,8 @@ defmodule Mockingbird.Mixfile do
       app: :mockingbird,
       version: @version,
       elixir: "~> 1.4",
-      build_embedded: Mix.env == :prod,
-      start_permanent: Mix.env == :prod,
+      build_embedded: Mix.env() == :prod,
+      start_permanent: Mix.env() == :prod,
       maintainers: @maintainers,
       description: description(),
       package: package(),
@@ -29,10 +30,10 @@ defmodule Mockingbird.Mixfile do
 
   defp deps do
     [
-      {:httpoison, "~> 0.10"},
+      {:httpoison, "~> 0.13"},
 
       # Dev and test deps
-      {:mock, "~> 0.2.0", only: :test},
+      {:mock, "~> 0.3.1", only: :test},
       {:credo, "~> 0.7", only: [:dev, :test]},
       {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
       {:ex_doc, "~> 0.14", only: :dev, runtime: false},
@@ -50,8 +51,7 @@ defmodule Mockingbird.Mixfile do
       files: ["lib", "mix.exs", "README.md", "LICENSE"],
       maintainers: @maintainers,
       licenses: ["Apache 2.0"],
-      links: %{"GitHub" => @url,
-               "Docs" => "http://ericmj.github.io/postgrex/"}
+      links: %{"GitHub" => @url, "Docs" => "https://hexdocs.pm/mockingbird/"}
     ]
   end
 end

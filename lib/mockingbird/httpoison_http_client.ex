@@ -17,38 +17,43 @@ defmodule Mockingbird.HTTPoisonHttpClient do
   passed as a map. The body for all other methods need to be a binary (e.g.: a
   string with a JSON-encoded structure).
   """
-  @spec call(atom, binary, map | binary, map) :: {:ok, HTTPoison.Response.t} | {:error, HTTPoison.Error.t}
-  def call(verb, url, body \\ %{}, headers \\ %{})
+  @spec call(atom, binary, map | binary, map, Keyword.t()) ::
+          {:ok, HTTPoison.Response.t()} | {:error, HTTPoison.Error.t()}
+  def call(verb, url, body \\ %{}, headers \\ %{}, options \\ [])
 
-  def call(:delete, url, _body, headers) do
-    HTTPoison.delete(url, headers)
+  def call(:delete, url, _body, headers, options) do
+    HTTPoison.delete(url, headers, options)
   end
 
-  def call(:get, url, params, headers) do
+  def call(:get, url, params, headers, options) do
     url = url_with_params(url, params)
-    HTTPoison.get(url, headers)
+    HTTPoison.get(url, headers, options)
   end
 
-  def call(:head, url, _body, headers) do
-    HTTPoison.head(url, headers)
+  def call(:head, url, _body, headers, options) do
+    HTTPoison.head(url, headers, options)
   end
 
-  def call(:options, url, _body, headers) do
-    HTTPoison.options(url, headers)
+  def call(:options, url, _body, headers, options) do
+    HTTPoison.options(url, headers, options)
   end
 
-  def call(:patch, url, body, headers) do
-    HTTPoison.patch(url, body, headers)
+  def call(:patch, url, body, headers, options) do
+    HTTPoison.patch(url, body, headers, options)
   end
 
-  def call(:post, url, body, headers) do
-    HTTPoison.post(url, body, headers)
+  def call(:post, url, body, headers, options) do
+    HTTPoison.post(url, body, headers, options)
+  end
+
+  def call(:put, url, body, headers, options) do
+    HTTPoison.put(url, body, headers, options)
   end
 
   defp url_with_params(url, params) when params == %{}, do: url
   defp url_with_params(url, params), do: url |> add_query_to_url(params)
 
   defp add_query_to_url(url, params) do
-    %{URI.parse(url) | query: URI.encode_query(params)} |> URI.to_string
+    %{URI.parse(url) | query: URI.encode_query(params)} |> URI.to_string()
   end
 end
