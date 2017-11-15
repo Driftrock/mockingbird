@@ -21,32 +21,50 @@ defmodule Mockingbird.HTTPoisonHttpClient do
           {:ok, HTTPoison.Response.t()} | {:error, HTTPoison.Error.t()}
   def call(verb, url, body \\ %{}, headers \\ %{}, options \\ [])
 
-  def call(:delete, url, _body, headers, options) do
+  def call(verb, url, body, headers, options) do
+    do_call(verb, url, body, headers, options, 0)
+  end
+
+  defp do_call(_verb, _url, _body, _headers, _options, 3) do
+    raise %HTTPoison.Error{reason: :closed}
+  end
+
+  defp do_call(verb, url, body, headers, options, attempt) do
+    case perform_call(verb, url, body, headers, options) do
+      {:error, %HTTPoison.Error{id: nil, reason: :closed}} ->
+        do_call(verb, url, body, headers, options, attempt + 1)
+
+      res ->
+        res
+    end
+  end
+
+  defp perform_call(:delete, url, _body, headers, options) do
     HTTPoison.delete(url, headers, options)
   end
 
-  def call(:get, url, params, headers, options) do
+  defp perform_call(:get, url, params, headers, options) do
     url = url_with_params(url, params)
     HTTPoison.get(url, headers, options)
   end
 
-  def call(:head, url, _body, headers, options) do
+  defp perform_call(:head, url, _body, headers, options) do
     HTTPoison.head(url, headers, options)
   end
 
-  def call(:options, url, _body, headers, options) do
+  defp perform_call(:options, url, _body, headers, options) do
     HTTPoison.options(url, headers, options)
   end
 
-  def call(:patch, url, body, headers, options) do
+  defp perform_call(:patch, url, body, headers, options) do
     HTTPoison.patch(url, body, headers, options)
   end
 
-  def call(:post, url, body, headers, options) do
+  defp perform_call(:post, url, body, headers, options) do
     HTTPoison.post(url, body, headers, options)
   end
 
-  def call(:put, url, body, headers, options) do
+  defp perform_call(:put, url, body, headers, options) do
     HTTPoison.put(url, body, headers, options)
   end
 
