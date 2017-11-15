@@ -17,6 +17,9 @@ defmodule Mockingbird.HTTPoisonHttpClient do
   passed as a map. The body for all other methods need to be a binary (e.g.: a
   string with a JSON-encoded structure).
   """
+
+  @max_retry_attempts 3
+
   @spec call(atom, binary, map | binary, map, Keyword.t()) ::
           {:ok, HTTPoison.Response.t()} | {:error, HTTPoison.Error.t()}
   def call(verb, url, body \\ %{}, headers \\ %{}, options \\ [])
@@ -25,7 +28,7 @@ defmodule Mockingbird.HTTPoisonHttpClient do
     do_call(verb, url, body, headers, options, 0)
   end
 
-  defp do_call(_verb, _url, _body, _headers, _options, 3) do
+  defp do_call(_verb, _url, _body, _headers, _options, @max_retry_attempts) do
     raise %HTTPoison.Error{reason: :closed}
   end
 
