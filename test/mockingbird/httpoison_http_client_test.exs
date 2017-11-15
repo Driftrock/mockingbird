@@ -36,5 +36,23 @@ defmodule Mockingbird.HTTPoisonHttpClientTest do
         assert called(HTTPoison.get("http://example.com?test=true", [], ssl_options))
       end
     end
+
+    test "retries on a hackney connection closed" do
+      {:ok, agent} = Agent.start_link(fn -> 0 end)
+
+      update_count_and_return_error = fn agent ->
+        Agent.update(agent, fn count -> count + 1 end)
+        {:error, %HTTPoison.Error{id: nil, reason: :closed}}
+      end
+
+      with_mock HTTPoison,
+        get: fn "http://example.com", %{}, [] -> update_count_and_return_error.(agent) end do
+        assert_raise HTTPoison.Error, fn ->
+          Mockingbird.HTTPoisonHttpClient.call(:get, "http://example.com")
+        end
+
+        assert Agent.get(agent, fn count -> count end) == 3
+      end
+    end
   end
 end
