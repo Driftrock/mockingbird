@@ -40,7 +40,7 @@ end
 
 # test/support/mock_github_http_client.ex
 defmodule MyApp.MockGithubHttpClient do
-  use Mockingbird.Client
+  import Mockingbird.Client
 
   # Define `call` methods for each `call` head (ie. verb, url, params) you
   # want to mock for tests
