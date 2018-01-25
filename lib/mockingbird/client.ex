@@ -15,7 +15,7 @@ defmodule Mockingbird.Client do
     """
 
     defexception [:message]
-     @type t :: %__MODULE__{message: binary}
+    @type t :: %__MODULE__{message: binary}
   end
 
   @moduledoc ~S"""
@@ -28,7 +28,7 @@ defmodule Mockingbird.Client do
 
       # test/support/git_mock_http_client.ex
       defmodule MyApp.GitMockHttpClient do
-        use Mockingbird.FakeClient
+        import Mockingbird.Client
 
         def call(:get, "https://api.github.com/users/amencarini") do
           respond :ok, 200, \"""
@@ -40,7 +40,7 @@ defmodule Mockingbird.Client do
         end
       end
   """
-  @spec respond(:ok | :error, integer, binary) :: {:ok, Response.t} | {:error, Error.t}
+  @spec respond(:ok | :error, integer, binary) :: {:ok, Response.t()} | {:error, Error.t()}
   def respond(result, status, body, headers \\ [])
 
   def respond(:ok, status, body, headers) do
