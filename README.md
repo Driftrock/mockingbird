@@ -6,6 +6,12 @@
 
 Mockingbird helps you create API consumers that are easy to test.
 
+## Why use Mockingbird?
+
+At Driftrock we have lots of services that communicate with other external services (other Driftrock applications or third-parties). When we're working on an application we don't want to have to run and rely on all possible connected services to validate changes as this dramatically slows down the development process. Instead we would much rather change, test and deploy each application independently, safe in the knowledge that integrates nicely with other services.
+
+The prevalent solution in the Elixir community for this type of testing is to [switch external client modules for fake implementations depending on the environment](http://blog.plataformatec.com.br/2015/10/mocks-and-explicit-contracts/). This solution is simple and works nicely, however we found that our tests were not exercising enough of the production external client to provide us with the safety we needed when making changes. It's too easy to fall into the trap of only making changes to the test client and not replicating those in the production client. So we decided to drop one level deeper and switch our HTTP Client (typically `HTTPPoison`) for a fake implementation when testing. Mockingbird is our solution for that.
+
 ## Installation
 
 Add `mockingbird` to your list of dependencies in `mix.exs`:
