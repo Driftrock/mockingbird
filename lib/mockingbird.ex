@@ -54,7 +54,8 @@ defmodule Mockingbird do
 
   @doc false
   defmacro __using__(opts) do
-    clients = clients(opts) |> Enum.into(%{}, fn {k, v} -> {k, Macro.expand(v, __CALLER__)} end)
+    clients =
+      opts |> clients() |> Enum.into(%{}, fn {k, v} -> {k, Macro.expand(v, __CALLER__)} end)
 
     quote do
       @clients unquote(clients |> Macro.escape())
