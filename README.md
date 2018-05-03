@@ -20,7 +20,7 @@ Add `mockingbird` to your list of dependencies in `mix.exs`:
 def deps do
   [
     # ...
-    {:mockingbird, "~> 0.1.1"},
+    {:mockingbird, "~> 0.2.0"},
     # ...
   ]
 end
